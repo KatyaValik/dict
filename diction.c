@@ -5,6 +5,8 @@
 
 /**Maximem length of string*/
 #define MAX_STRING_LEN	100
+
+/*Maximum number of words*/
 #define MAX_WORDS 100000
 
 typedef struct word *list;
@@ -19,7 +21,9 @@ struct mas
 {
 	char nword[MAX_STRING_LEN];
 	int ncount;
-} mas[MAX_WORDS];
+} mas_words[MAX_WORDS];
+
+int mas_words_size = 0;
 
 typedef struct node *tree;
 struct node
@@ -38,14 +42,24 @@ void wordtolower(char *dst, char *src)
 	};
 	dst[i] = 0;
 }
-;
+
+void free_list(list L)
+{
+	if (L->next != NULL)
+		free_list(L->next);
+
+	free(L);
+}
 
 tree ftree(tree T, char* s)
 {
+	char str[MAX_STRING_LEN];
+
 	if (T == NULL)
 	{
-		tree T = malloc(sizeof(struct node));
-		char str[MAX_STRING_LEN];
+		T = calloc(1, sizeof(struct node));
+
+		T->words = calloc(1, sizeof(struct word));
 
 		wordtolower(str, s);
 
@@ -53,22 +67,15 @@ tree ftree(tree T, char* s)
 		{
 			strcpy(T->words->word, str);
 			T->words->count = 1;
-			T->words->next = NULL;
-			T->left = NULL;
-			T->right = NULL;
-			return (T);
 		}
 		else
 		{
 			strcpy(T->words->word, str);
-			T->words->next = malloc(sizeof(list));
+			T->words->next = calloc(1, sizeof(struct word));
 			strcpy(T->words->next->word, s);
-			T->words->count = 0;
-			T->words->next->count = 1;
-			T->left = NULL;
-			T->right = NULL;
-			T->words->next->next = NULL;
+			T->words->next->count++;
 		};
+		return (T);
 	}
 	else
 	{
@@ -93,62 +100,96 @@ tree ftree(tree T, char* s)
 						k = k + L->count;
 						L = L->next;
 					};
+					free_list(Lstart->next);
 					Lstart->next = NULL;
 					Lstart->count = k;
-					T->words = Lstart;
 					return (T);
-				};
-			};
-			while (L != NULL)
-			{
-				if (strcmp(L->word, s) == 0)
+				}
+
+				while (L != NULL)
 				{
-					L->count++;
-					return (T);
+					if (strcmp(L->word, s) == 0)
+					{
+						L->count++;
+						return (T);
+					};
+					L = L->next;
 				};
-				L = L->next;
-			};
-			list p = malloc(sizeof(struct word));
-			strcmp(p->word, s);
-			p->count = 1;
-			L = Lstart;
-			p->next = L->next;
-			L->next = p;
-			return (T);
+				list p = malloc(sizeof(struct word));
+				strcpy(p->word, s);
+				p->count = 1;
+				L = Lstart;
+				p->next = L->next;
+				L->next = p;
+				return (T);
+			}
 		}
 		else
 		{
 			if (strcmp(T->words->word, s) > 0)
 			{
-				T = ftree(T->right, s);
+				T->right = ftree(T->right, s);
+				return T;
 			}
 			else
 			{
-				T = ftree(T->left, s);
-			};
-		};
-	};
+				T->left = ftree(T->left, s);
+				return T;
+			}
+		}
+	}
+
+	return T;
 }
 
-void treemas(tree T, char *s)
+int print_tree(tree T, int mas_size)
 {
-	if (T != NULL)
+	if (T == NULL)
+		return mas_size;
+
+	list L = T->words;
+	if (L->count > 0)
 	{
-		list L = T->words;
-		int k = 0;
-		while (mas[k].ncount != 0)
+		mas_words[mas_size].ncount = L->count;
+		strcpy(mas_words[mas_size].nword, L->word );
+		mas_size++;
+	}
+	else
+	{
+		L = L->next;
+		while (L)
 		{
-			k++;
-		};
-		while (L != NULL)
-		{
-			strcpy(mas[k].nword, L->word);
-			mas[k].ncount = L->count;
+			strcpy(mas_words[mas_size].nword, L->word );
+			mas_words[mas_size].ncount = L->count;
+			mas_size++;
 			L = L->next;
-		};
-		treemas(T->left, s);
-		treemas(T->right, s);
-	};
+		}
+	}
+
+	printf("goto left\n");
+	mas_size = print_tree(T->left, mas_size);
+	printf("goto right\n");
+
+	return print_tree(T->right, mas_size);
+}
+
+int compar(const void * c1, const void * c2)
+{
+	struct mas *m1 = (struct mas*) c1;
+	struct mas *m2 = (struct mas*) c2;
+
+	if (m1->ncount > m2->ncount)
+		return 1;
+
+	if (m1->ncount < m2->ncount)
+		return -1;
+
+	return 0;
+}
+
+void sort_mas()
+{
+	qsort(mas_words, mas_words_size, sizeof(struct mas), compar);
 }
 
 int main()
@@ -170,21 +211,22 @@ int main()
 		else
 		{
 			/*Exit on empty string*/
-			if( (k == 0) && (c == '\n'))
+			if ((k == 0) && (c == '\n'))
 				break;
 
-			//T=ftree(T,s);
+			T = ftree(T, s);
 			k = 0;
 			if ((c != ' ') && (c != '\n'))
 			{
 				str[0] = c;
-				//T=ftree(T,str);
-			};
+				T = ftree(T, str);
+			}
 			memset(s, 0, sizeof(s));
-		};
-	};
-	//struct mas *m=malloc(sizeof(struct mas));
-	//treemas(T,mas);
+		}
+	}
+	k = 0;
+	k = print_tree(T, k);
+
 	return 0;
 }
 
