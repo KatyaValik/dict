@@ -21,11 +21,10 @@ struct mas
 {
 	char nword[MAX_STRING_LEN];
 	int ncount;
-} mas_words[MAX_WORDS];
-
-int mas_words_size = 0;
+};
 
 typedef struct node *tree;
+
 struct node
 {
 	list words;
@@ -142,7 +141,7 @@ tree ftree(tree T, char* s)
 	return T;
 }
 
-int print_tree(tree T, int mas_size)
+int print_tree(tree T, struct mas* mas_words, int mas_size)
 {
 	if (T == NULL)
 		return mas_size;
@@ -167,10 +166,10 @@ int print_tree(tree T, int mas_size)
 	}
 
 	printf("goto left\n");
-	mas_size = print_tree(T->left, mas_size);
+	mas_size = print_tree(T->left, mas_words, mas_size);
 	printf("goto right\n");
 
-	return print_tree(T->right, mas_size);
+	return print_tree(T->right, mas_words, mas_size);
 }
 
 int compar(const void * c1, const void * c2)
@@ -187,9 +186,17 @@ int compar(const void * c1, const void * c2)
 	return 0;
 }
 
-void sort_mas()
+void sort_mas(struct mas* mas_words, int size)
 {
-	qsort(mas_words, mas_words_size, sizeof(struct mas), compar);
+	qsort(mas_words, size, sizeof(struct mas), compar);
+}
+
+void print_mas_words( struct mas* mas_words, int size)
+{
+	for( int i = 0; i < size; i++ )
+	{
+		printf("word %d\tcount=%d\t\t%s\n", i, mas_words[i].ncount, mas_words[i].nword);
+	}
 }
 
 int main()
@@ -197,10 +204,14 @@ int main()
 	tree T = NULL;
 	char c;
 	char s[MAX_STRING_LEN], str[MAX_STRING_LEN];
+	struct mas* mas_words;
 	int k, p;
 	memset(s, 0, sizeof(s));
 	memset(str, 0, sizeof(str));
 	k = 0;
+
+	mas_words = calloc( MAX_WORDS, sizeof(struct mas));
+
 	while (scanf("%c", &c) != EOF)
 	{
 		if (isalnum(c) || (c == '_') || (c == '@') || (c == '$') || (c == '%'))
@@ -224,8 +235,14 @@ int main()
 			memset(s, 0, sizeof(s));
 		}
 	}
-	k = 0;
-	k = print_tree(T, k);
+
+	k = print_tree(T, mas_words, 0);
+
+	sort_mas(mas_words, k);
+	print_mas_words(mas_words, k);
+
+
+	free( mas_words );
 
 	return 0;
 }
