@@ -49,6 +49,7 @@ tree ftree(tree T,char s[100]) {
 			return(T);
 	    } else {
 		strcpy(T->words->word,str);
+		T->words->next=malloc(sizeof(list));
 		strcpy(T->words->next->word,s);
 		T->words->count=0;
 		T->words->next->count=1;
@@ -132,7 +133,7 @@ int main() {
 	memset(s,0,100);
 	memset(str,0,100);
 	k=0;
-	while( scanf("%c",&c) != EOF ) {
+	while (scanf("%c",&c) != EOF ) {
 		if (isalnum(c)||(c=='_')||(c=='@')||(c=='$')||(c=='%')) {
 			s[k]=c;
 			k++;
@@ -146,7 +147,7 @@ int main() {
 			memset(s,0,100);
 		};
 	};
-	struct mas *m=malloc(sizeof(struct mas));
+	//struct mas *m=malloc(sizeof(struct mas));
 	//treemas(T,mas);
 	return 0;
 }
