@@ -10,6 +10,14 @@ typedef struct word *list;
 		list next;
 	};
 
+struct mas {
+	char nword;
+	int ncount;
+} mas[100000];
+
+
+
+
 typedef struct node *tree;
 	struct node {
 		list words;
@@ -17,7 +25,7 @@ typedef struct node *tree;
 		tree right;
 	};
 
-void wordtolower(char* dst, char* src) {
+void wordtolower(char *dst, char *src) {
 	int i;
 	for ( i=0; i<=strlen(src); i++) {
 		dst[i] = tolower(src[i]);
@@ -25,34 +33,13 @@ void wordtolower(char* dst, char* src) {
 	dst[i] = 0;
 };
 
-int comp(char s1[100],char s2[100]) {
-	if (strlen(s1)!=strlen(s2)) {
-		return(strcmp(s1,s2));
-	} else {
-		char c;
-		if (strcmp(s1,s2)==0) {
-			return 0;
-		} else {
-			for (int i=0; i<=strlen(s1); i++) {
-				if (s1[i]!=s2[i]) {
-					if	((c=toupper(s1[i])!=s2[i])&&(c=toupper(s2[i])!=s1[i])) {
-						return(strcmp(s1,s2));
-					};
-				};
-			};
-		};
-	};
-};
-
-
-
-
 
 
 tree ftree(tree T,char s[100]) {
 	if (T==NULL) {
 		tree T=malloc(sizeof(struct node));
-		char str=wordtolower(s);
+		char str;
+		wordtolower(str,s);
 		if (islower(s[0])) {
 			strcpy(T->words->word,str);
 			T->words->count=1;
@@ -70,7 +57,8 @@ tree ftree(tree T,char s[100]) {
 		T->words->next->next=NULL;
 	    };
 	} else {
-		char str=wordtolower(s);
+		char str;
+		wordtolower(str,s);
 		list L=T->words;
 		list Lstart=L;
 		if (strcmp(L->word,str)==0) {
@@ -89,12 +77,13 @@ tree ftree(tree T,char s[100]) {
 					T->words=Lstart;
 					return(T);
 				};
-			} else {
+			};
 				while (L!=NULL) {
 					if (strcmp(L->word,s)==0) {
 						L->count++;
 						return (T);
 					};
+					L=L->next;
 				};
 				list p=malloc(sizeof(struct word));
 				strcmp(p->word,s);
@@ -103,8 +92,7 @@ tree ftree(tree T,char s[100]) {
 				p->next=L->next;
 				L->next=p;
 				return(T);
-			};
-		}  else {
+			} else {
 				if (strcmp(T->words->word,s)>0) {
 					T=ftree(T->right,s);
 				} else {
@@ -114,8 +102,22 @@ tree ftree(tree T,char s[100]) {
 		};
 	}
 
-
-
+void treemas(tree T,char *s) {
+	if (T!=NULL) {
+		list L=T->words;
+		int k=0;
+		while (mas[k].ncount!=0) {
+			k++;
+		};
+		while (L!=NULL) {
+			strcpy(mas[k].nword,L->word);
+			mas[k].ncount=L->count;
+			L=L->next;
+		};
+	treemas(T->left,*s);
+	treemas(T->right,*s);
+	};
+}
 
 
 
@@ -142,9 +144,10 @@ int main() {
 			//T=ftree(T,str);
 			};
 			memset(s,0,100);
-		}
-		
-	}
+		};
+	};
+	struct mas *m=malloc(sizeof(struct mas));
+	//treemas(T,mas);
 	return 0;
 }
 
