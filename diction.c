@@ -3,47 +3,63 @@
 #include <string.h>
 #include <ctype.h>
 
+/**Maximem length of string*/
+#define MAX_STRING_LEN	100
+#define MAX_WORDS 100000
+
 typedef struct word *list;
-struct word {
-	char word[100];
+struct word
+{
+	char word[MAX_STRING_LEN];
 	int count;
 	list next;
 };
 
-struct mas {
-	char nword;
+struct mas
+{
+	char nword[MAX_STRING_LEN];
 	int ncount;
-} mas[100000];
+} mas[MAX_WORDS];
 
 typedef struct node *tree;
-struct node {
+struct node
+{
 	list words;
 	tree left;
 	tree right;
 };
 
-void wordtolower(char *dst, char *src) {
+void wordtolower(char *dst, char *src)
+{
 	int i;
-	for (i = 0; i <= strlen(src); i++) {
+	for (i = 0; i <= strlen(src); i++)
+	{
 		dst[i] = tolower(src[i]);
 	};
 	dst[i] = 0;
 }
 ;
 
-tree ftree(tree T, char s[100]) {
-	if (T == NULL) {
+tree ftree(tree T, char* s)
+{
+	if (T == NULL)
+	{
 		tree T = malloc(sizeof(struct node));
-		char str;
+		char str[MAX_STRING_LEN];
+
 		wordtolower(str, s);
-		if (islower(s[0])) {
+
+		if (islower(s[0]))
+		{
 			strcpy(T->words->word, str);
 			T->words->count = 1;
 			T->words->next = NULL;
 			T->left = NULL;
 			T->right = NULL;
 			return (T);
-		} else {
+		}
+		else
+		{
 			strcpy(T->words->word, str);
 			T->words->next = malloc(sizeof(list));
 			strcpy(T->words->next->word, s);
@@ -53,19 +69,27 @@ tree ftree(tree T, char s[100]) {
 			T->right = NULL;
 			T->words->next->next = NULL;
 		};
-	} else {
-		char str;
+	}
+	else
+	{
+		char str[MAX_STRING_LEN];
 		wordtolower(str, s);
 		list L = T->words;
 		list Lstart = L;
-		if (strcmp(L->word, str) == 0) {
-			if (L->count > 0) {
+		if (strcmp(L->word, str) == 0)
+		{
+			if (L->count > 0)
+			{
 				L->count++;
 				return (T);
-			} else {
-				if (islower(s[0])) {
+			}
+			else
+			{
+				if (islower(s[0]))
+				{
 					int k = 1;
-					while (L != NULL) {
+					while (L != NULL)
+					{
 						k = k + L->count;
 						L = L->next;
 					};
@@ -75,8 +99,10 @@ tree ftree(tree T, char s[100]) {
 					return (T);
 				};
 			};
-			while (L != NULL) {
-				if (strcmp(L->word, s) == 0) {
+			while (L != NULL)
+			{
+				if (strcmp(L->word, s) == 0)
+				{
 					L->count++;
 					return (T);
 				};
@@ -89,54 +115,72 @@ tree ftree(tree T, char s[100]) {
 			p->next = L->next;
 			L->next = p;
 			return (T);
-		} else {
-			if (strcmp(T->words->word, s) > 0) {
+		}
+		else
+		{
+			if (strcmp(T->words->word, s) > 0)
+			{
 				T = ftree(T->right, s);
-			} else {
+			}
+			else
+			{
 				T = ftree(T->left, s);
 			};
 		};
 	};
 }
 
-void treemas(tree T, char *s) {
-	if (T != NULL) {
+void treemas(tree T, char *s)
+{
+	if (T != NULL)
+	{
 		list L = T->words;
 		int k = 0;
-		while (mas[k].ncount != 0) {
+		while (mas[k].ncount != 0)
+		{
 			k++;
 		};
-		while (L != NULL) {
+		while (L != NULL)
+		{
 			strcpy(mas[k].nword, L->word);
 			mas[k].ncount = L->count;
 			L = L->next;
 		};
-		treemas(T->left, *s);
-		treemas(T->right, *s);
+		treemas(T->left, s);
+		treemas(T->right, s);
 	};
 }
 
-int main() {
+int main()
+{
 	tree T = NULL;
 	char c;
-	char s[100], str[100];
+	char s[MAX_STRING_LEN], str[MAX_STRING_LEN];
 	int k, p;
-	memset(s, 0, 100);
-	memset(str, 0, 100);
+	memset(s, 0, sizeof(s));
+	memset(str, 0, sizeof(str));
 	k = 0;
-	while (scanf("%c", &c) != EOF) {
-		if (isalnum(c) || (c == '_') || (c == '@') || (c == '$')
-				|| (c == '%')) {
+	while (scanf("%c", &c) != EOF)
+	{
+		if (isalnum(c) || (c == '_') || (c == '@') || (c == '$') || (c == '%'))
+		{
 			s[k] = c;
 			k++;
-		} else {
+		}
+		else
+		{
+			/*Exit on empty string*/
+			if( (k == 0) && (c == '\n'))
+				break;
+
 			//T=ftree(T,s);
 			k = 0;
-			if ((c != ' ') && (c != '\n')) {
+			if ((c != ' ') && (c != '\n'))
+			{
 				str[0] = c;
 				//T=ftree(T,str);
 			};
-			memset(s, 0, 100);
+			memset(s, 0, sizeof(s));
 		};
 	};
 	//struct mas *m=malloc(sizeof(struct mas));
